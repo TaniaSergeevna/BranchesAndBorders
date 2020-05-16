@@ -1,5 +1,11 @@
 import xml.dom.minidom
 
+import itertools
+
+import networkx as nx
+import numpy.random as rnd
+import matplotlib.pyplot as plt
+
 
 def main():
     """
@@ -41,7 +47,13 @@ def graph(train_id, departure_station_id, arrival_station_id, price):
     :return:
     matrix
     """
-    matrix = [[[0] * len(set(arrival_station_id)) for _ in range(len(set(arrival_station_id)))]]
+    matrix = [[0] * len(set(arrival_station_id)) for _ in range(len(set(arrival_station_id)))]
+    index = []
+    count_index = 0
+    for i in set(arrival_station_id):
+        index.append((count_index, i))
+        count_index += 1
+
     trip_data = []
     for i in set(departure_station_id):
         data_all, data_ = [], []
@@ -71,12 +83,30 @@ def graph(train_id, departure_station_id, arrival_station_id, price):
     arrival = []
     for i in set(arrival_station_id):
         arrival.append(i)
-    print(matrix)
-    i = 0
-    for i in arrival:
-        pass
 
-    return matrix
+    i = 0
+    while i < len(trip_data):
+        j = 0
+        while j < len(trip_data[i]):
+            count_y, count_x = 0, 0
+            for k in range(len(index)):
+                if index[k][1] == trip_data[i][j][1]:
+                    count_x = k
+            for k in range(len(index)):
+                if index[k][1] == trip_data[i][j][2]:
+                    count_y = k
+            matrix[count_x][count_y] = float(trip_data[i][j][3])
+            j += 1
+        i += 1
+    for i in range(len(matrix)):
+        matrix[i][i] = float('inf')
+
+    for row in matrix:
+        for elem in row:
+            print(elem, end='   ')
+        print()
+
+    return matrix, index, trip_data
 
 
 # Функция нахождения минимального элемента, исключая текущий элемент
@@ -125,7 +155,7 @@ def branches_and_borders(matrix):
     # # Присваеваем главной диагонали float(inf)
     for i in range(n):
         matrix[i][i] = float('inf')
-    print(matrix)
+    # print(matrix)
     while True:
         # Редуцируем
         # --------------------------------------
@@ -135,14 +165,12 @@ def branches_and_borders(matrix):
             h += temp
             for j in range(len(matrix)):
                 matrix[i][j] -= temp
-        print(matrix)
         # Вычитаем минимальный элемент в столбцах
         for i in range(len(matrix)):
             temp = min(row[i] for row in matrix)
             h += temp
             for j in range(len(matrix)):
                 matrix[j][i] -= temp
-        print(matrix)
 
         # --------------------------------------
 
@@ -189,21 +217,75 @@ def branches_and_borders(matrix):
                 result.append(res[j + 1])
 
     print("----------------------------------")
-    print('res =', result)
+    # print('res =', result)
 
     # Считаем длину пути
     for i in range(0, len(result) - 1, 2):
         if i == len(result) - 2:
             path_lenght += start_matrix[result[i] - 1][result[i + 1] - 1]
             path_lenght += start_matrix[result[i + 1] - 1][result[0] - 1]
+            print(start_matrix[result[i] - 1][result[i + 1] - 1])
+            print(start_matrix[result[i + 1] - 1][result[0] - 1])
         else:
             path_lenght += start_matrix[result[i] - 1][result[i + 1] - 1]
+            print(start_matrix[result[i] - 1][result[i + 1] - 1])
 
     print('price = ', path_lenght)
+    return result
+
+
+def print_id_triens(res, index, trip_data):
+    data = []
+    print(res)
+    for i in res:
+        j = 0
+        while j < len(index):
+            if i - 1 == index[j][0]:
+                data.append(index[j][1])
+            j += 1
+    print(data)
+
+    count_res = 0
+    k = 0
+    # print(trip_data)
+    while k < len(res) - 1:
+        i = 0
+        while i < len(trip_data) - 1:
+            j = 0
+            while j < len(trip_data[i]):
+                # print(data[count_res], data[count_res+1])
+                if trip_data[i][j][1] == data[k] and trip_data[i][j][2] == data[k + 1]:
+                    print(trip_data[i][j])
+                    print(k)
+
+                j += 1
+
+            i += 1
+
+        k += 1
+
 
 
 if __name__ == "__main__":
     train_id, departure_station_id, arrival_station_id, price = main()
-    graph(train_id, departure_station_id, arrival_station_id, price)
-    branches_and_borders(
-        [[0, 20, 18, 12, 8], [5, 0, 14, 7, 11], [12, 18, 0, 6, 11], [11, 17, 11, 0, 12], [5, 5, 5, 5, 0]])
+    matrix, index, trip_data = graph(train_id, departure_station_id, arrival_station_id, price)
+
+    res = branches_and_borders(matrix)
+
+
+
+    # print(Dijkstra(6, 1, matrix))
+    graph = nx.Graph()
+
+    kilometres = set()
+    i = 0
+    while i < len(departure_station_id):
+        kilometres.add((departure_station_id[i], arrival_station_id[i], price[i]))
+        i += 1
+
+    graph.add_weighted_edges_from(kilometres)
+    nx.draw_circular(graph,
+                     node_color='red',
+                     node_size=1000,
+                     with_labels=True)
+    plt.show()

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <TrainLegs>
-  <TrainLeg TrainId = "907" DepartureStationId = "1909"  ArrivalStationId = "1929" Price = "1790.87" ArrivalTimeString = "00:50:00" DepartureTimeString = "20:00:00"></TrainLeg> 
+  <TrainLeg TrainId = "907" DepartureStationId = "1909"  ArrivalStationId = "1929" Price = "1790.87" ArrivalTimeString = "00:50:00" DepartureTimeString = "20:00:00"></TrainLeg>
   <TrainLeg TrainId = "908" DepartureStationId = "1909"  ArrivalStationId = "1929" Price = "1790.87" ArrivalTimeString = "00:50:00" DepartureTimeString = "20:00:00"></TrainLeg> 
   <TrainLeg TrainId = "909" DepartureStationId = "1929"  ArrivalStationId = "1909" Price = "1790.87" ArrivalTimeString = "10:01:00" DepartureTimeString = "01:00:00"></TrainLeg> 
   <TrainLeg TrainId = "909" DepartureStationId = "1929"  ArrivalStationId = "1921" Price = "199.15" ArrivalTimeString = "11:10:00" DepartureTimeString = "01:00:00"></TrainLeg> 
