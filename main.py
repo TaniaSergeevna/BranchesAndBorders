@@ -5,6 +5,7 @@ import itertools
 import networkx as nx
 import numpy.random as rnd
 import matplotlib.pyplot as plt
+import collections
 
 
 def main():
@@ -39,21 +40,15 @@ def main():
 
 
 def create_matrix(train_id, departure_station_id, arrival_station_id, price):
-    """
-    :param train_id:
-    :param departure_station_id:
-    :param arrival_station_id:
-    :param price:
-    :return:
-    matrix
-    """
     matrix = [[0] * len(set(arrival_station_id)) for _ in range(len(set(arrival_station_id)))]
-    index = []
+
+    index = [item for item, count in collections.Counter(arrival_station_id).items() if count > 1]
+
     count_index = 0
-    for i in set(arrival_station_id):
+    for i in index:
         index.append((count_index, i))
         count_index += 1
-
+    print(index)
     trip_data = []
     for i in set(departure_station_id):
         data_all, data_ = [], []
@@ -184,43 +179,45 @@ def branches_and_borders(matrix):
         if i == len(result) - 2:
             path_lenght += start_matrix[result[i] - 1][result[i + 1] - 1]
             path_lenght += start_matrix[result[i + 1] - 1][result[0] - 1]
-
+            print(start_matrix[result[i] - 1][result[i + 1] - 1])
+            print(start_matrix[result[i + 1] - 1][result[0] - 1])
         else:
             path_lenght += start_matrix[result[i] - 1][result[i + 1] - 1]
+            print(start_matrix[result[i] - 1][result[i + 1] - 1])
 
     print('price = ', path_lenght)
     return result
 
 
-# def print_id_triens(res, index, trip_data):
-#     data = []
-#     print(res)
-#     for i in res:
-#         j = 0
-#         while j < len(index):
-#             if i - 1 == index[j][0]:
-#                 data.append(index[j][1])
-#             j += 1
-#     print(data)
-#
-#     k = 0
-#     while k < len(res) - 1:
-#         i = 0
-#         while i < len(trip_data) - 1:
-#             j = 0
-#             while j < len(trip_data[i]):
-#                 if trip_data[i][j][1] == data[k] and trip_data[i][j][2] == data[k + 1]:
-#                     print('Id_train {0} ({1}, {2})'.format(trip_data[i][j][0], trip_data[i][j][1], trip_data[i][j][2]))
-#                 j += 1
-#             i += 1
-#         k += 1
+def print_id_triens(res, index, trip_data):
+    data = []
+    print(res)
+    for i in res:
+        j = 0
+        while j < len(index):
+            if i - 1 == index[j][0]:
+                data.append(index[j][1])
+            j += 1
+    print(data)
+
+    k = 0
+    while k < len(res) - 1:
+        i = 0
+        while i < len(trip_data) - 1:
+            j = 0
+            while j < len(trip_data[i]):
+                if trip_data[i][j][1] == data[k] and trip_data[i][j][2] == data[k + 1]:
+                    print('Id_train {0} ({1}, {2})'.format(trip_data[i][j][0], trip_data[i][j][1], trip_data[i][j][2]))
+                j += 1
+            i += 1
+        k += 1
 
 
 if __name__ == "__main__":
     train_id, departure_station_id, arrival_station_id, price = main()
     matrix, index, trip_data = create_matrix(train_id, departure_station_id, arrival_station_id, price)
     res = branches_and_borders(matrix)
-    # print_id_triens(res, index, trip_data)
+    print_id_triens(res, index, trip_data)
     # graph = nx.Graph()
     # kilometres = set()
     # i = 0
