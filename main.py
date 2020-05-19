@@ -1,10 +1,4 @@
 import xml.dom.minidom
-
-import itertools
-
-import networkx as nx
-import numpy.random as rnd
-import matplotlib.pyplot as plt
 import collections
 
 
@@ -22,10 +16,10 @@ def main():
     """
     doc = xml.dom.minidom.parse("data.xml")
 
-    train_id, departure_station_id, arrival_station_id, price = [], [], [], []
+    train_id_, departure_station_id, arrival_station_id, price = [], [], [], []
 
     for skill in doc.getElementsByTagName("TrainLeg"):
-        train_id.append(skill.getAttribute("TrainId"))
+        train_id_.append(skill.getAttribute("TrainId"))
 
     for skill in doc.getElementsByTagName("TrainLeg"):
         departure_station_id.append(skill.getAttribute("DepartureStationId"))
@@ -36,18 +30,17 @@ def main():
     for skill in doc.getElementsByTagName("TrainLeg"):
         price.append(skill.getAttribute("Price"))
 
-    return train_id, departure_station_id, arrival_station_id, price
+    return train_id_, departure_station_id, arrival_station_id, price
 
 
-def create_matrix(train_id, departure_station_id, arrival_station_id, price):
+def create_matrix(train_id: list, departure_station_id: list, arrival_station_id: list, price: list):
     matrix = [[0] * len(set(arrival_station_id)) for _ in range(len(set(arrival_station_id)))]
-    indexs = sorted([item for item, count in collections.Counter(arrival_station_id).items() if count > 1])
-    index = []
+    index_1 = sorted([item for item, count in collections.Counter(arrival_station_id).items() if count > 1])
+    index, trip_data_ = [], []
     count_index = 0
-    for i in indexs:
+    for i in index_1:
         index.append((count_index, i))
         count_index += 1
-    trip_data = []
     for i in set(departure_station_id):
         data_all, data_ = [], []
         iter = 0
@@ -71,44 +64,44 @@ def create_matrix(train_id, departure_station_id, arrival_station_id, price):
                         minimum = data[k]
                     k += 1
                 data_.append(minimum)
-        trip_data.append(data_)
+        trip_data_.append(data_)
 
     arrival = []
     for i in set(arrival_station_id):
         arrival.append(i)
 
     i = 0
-    while i < len(trip_data):
+    while i < len(trip_data_):
         j = 0
-        while j < len(trip_data[i]):
+        while j < len(trip_data_[i]):
             count_y, count_x = 0, 0
             for k in range(len(index)):
-                if index[k][1] == trip_data[i][j][1]:
+                if index[k][1] == trip_data_[i][j][1]:
                     count_x = k
             for k in range(len(index)):
-                if index[k][1] == trip_data[i][j][2]:
+                if index[k][1] == trip_data_[i][j][2]:
                     count_y = k
-            matrix[count_x][count_y] = float(trip_data[i][j][3])
+            matrix[count_x][count_y] = float(trip_data_[i][j][3])
             j += 1
         i += 1
     for i in range(len(matrix)):
         matrix[i][i] = float('inf')
 
-    return matrix, index, trip_data
+    return matrix, index, trip_data_
 
 
-def minimum(lst, myindex):
-    return min(x for idx, x in enumerate(lst) if idx != myindex)
+def minimum(list_data: list, my_index: int):
+    return min(x for idx, x in enumerate(list_data) if idx != my_index)
 
 
-def delete(matrix, index1, index2):
+def delete(matrix: list, index1: int, index2: int):
     del matrix[index1]
     for i in matrix:
         del i[index2]
     return matrix
 
 
-def branches_and_borders(matrix):
+def branches_and_borders(matrix: list):
     h, path_lenght = 0, 0
     strr, stb, res, result, start_matrix = [], [], [], [], []
     n = len(matrix)
@@ -180,10 +173,10 @@ def branches_and_borders(matrix):
     return result
 
 
-def print_id_triens(res, index, trip_data):
+def print_id_triens(resalt: list, index: list, trip_data: list):
     data = []
 
-    for i in res:
+    for i in resalt:
         j = 0
         while j < len(index):
             if i - 1 == index[j][0]:
@@ -191,7 +184,7 @@ def print_id_triens(res, index, trip_data):
             j += 1
 
     k = 0
-    while k < len(res) - 1:
+    while k < len(resalt) - 1:
         i = 0
         while i < len(trip_data):
             j = 0
@@ -205,19 +198,13 @@ def print_id_triens(res, index, trip_data):
 
 if __name__ == "__main__":
     train_id, departure_station_id, arrival_station_id, price = main()
-    matrix, index, trip_data = create_matrix(train_id, departure_station_id, arrival_station_id, price)
+
+    matrix, index, trip_data = create_matrix(train_id,
+                                             departure_station_id,
+                                             arrival_station_id,
+                                             price)
     res = branches_and_borders(matrix)
-    print_id_triens(res, index, trip_data)
-    # graph = nx.Graph()
-    # kilometres = set()
-    # i = 0
-    # while i < len(departure_station_id):
-    #     kilometres.add((departure_station_id[i], arrival_station_id[i], price[i]))
-    #     i += 1
-    #
-    # graph.add_weighted_edges_from(kilometres)
-    # nx.draw_circular(graph,
-    #                  node_color='red',
-    #                  node_size=1000,
-    #                  with_labels=True)
-    # plt.show()
+
+    print_id_triens(res,
+                    index,
+                    trip_data)
