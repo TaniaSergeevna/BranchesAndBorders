@@ -41,14 +41,12 @@ def main():
 
 def create_matrix(train_id, departure_station_id, arrival_station_id, price):
     matrix = [[0] * len(set(arrival_station_id)) for _ in range(len(set(arrival_station_id)))]
-
-    index = [item for item, count in collections.Counter(arrival_station_id).items() if count > 1]
-
+    indexs = sorted([item for item, count in collections.Counter(arrival_station_id).items() if count > 1])
+    index = []
     count_index = 0
-    for i in index:
+    for i in indexs:
         index.append((count_index, i))
         count_index += 1
-    print(index)
     trip_data = []
     for i in set(departure_station_id):
         data_all, data_ = [], []
@@ -95,11 +93,6 @@ def create_matrix(train_id, departure_station_id, arrival_station_id, price):
         i += 1
     for i in range(len(matrix)):
         matrix[i][i] = float('inf')
-
-    # for row in matrix:
-    #     for elem in row:
-    #         print(elem, end='   ')
-    #     print()
 
     return matrix, index, trip_data
 
@@ -179,11 +172,9 @@ def branches_and_borders(matrix):
         if i == len(result) - 2:
             path_lenght += start_matrix[result[i] - 1][result[i + 1] - 1]
             path_lenght += start_matrix[result[i + 1] - 1][result[0] - 1]
-            print(start_matrix[result[i] - 1][result[i + 1] - 1])
-            print(start_matrix[result[i + 1] - 1][result[0] - 1])
+
         else:
             path_lenght += start_matrix[result[i] - 1][result[i + 1] - 1]
-            print(start_matrix[result[i] - 1][result[i + 1] - 1])
 
     print('price = ', path_lenght)
     return result
@@ -191,19 +182,18 @@ def branches_and_borders(matrix):
 
 def print_id_triens(res, index, trip_data):
     data = []
-    print(res)
+
     for i in res:
         j = 0
         while j < len(index):
             if i - 1 == index[j][0]:
                 data.append(index[j][1])
             j += 1
-    print(data)
 
     k = 0
     while k < len(res) - 1:
         i = 0
-        while i < len(trip_data) - 1:
+        while i < len(trip_data):
             j = 0
             while j < len(trip_data[i]):
                 if trip_data[i][j][1] == data[k] and trip_data[i][j][2] == data[k + 1]:
